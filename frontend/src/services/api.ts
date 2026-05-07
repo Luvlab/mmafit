@@ -1,4 +1,5 @@
 import axios from 'axios'
+import type { Product } from '../types'
 
 const api = axios.create({
   baseURL: '/api',
@@ -166,7 +167,7 @@ export const MEMBERSHIP_PLANS = [
   },
 ]
 
-export const PRODUCTS = [
+export const PRODUCTS: Product[] = [
   { id: 'p1', name: 'MMAFit Logo Tee', price: 349, category: 'apparel', inStock: true, rating: 4.8, reviews: 124, sizes: ['XS','S','M','L','XL','XXL'], colors: ['Black','White','Red'], image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80' },
   { id: 'p2', name: 'Fighter Hoodie', price: 699, category: 'apparel', inStock: true, rating: 4.9, reviews: 87, sizes: ['S','M','L','XL'], colors: ['Black','Charcoal'], image: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80' },
   { id: 'p3', name: 'MMAFit Leggings', price: 499, category: 'apparel', inStock: true, rating: 4.7, reviews: 203, sizes: ['XS','S','M','L','XL'], colors: ['Black','Red'], image: 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400&q=80' },

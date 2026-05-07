@@ -14,11 +14,11 @@ import toast from 'react-hot-toast'
 
 // ── Sidebar navigation ───────────────────────────────────────────────────────
 const MEMBER_NAV = [
-  { icon: LayoutDashboard, label: 'Overview',     id: 'overview' },
-  { icon: Calendar,        label: 'My Classes',   id: 'classes' },
-  { icon: TrendingUp,      label: 'Progress',     id: 'progress' },
-  { icon: ShoppingBag,     label: 'Orders',       id: 'orders' },
-  { icon: Settings,        label: 'Profile',      id: 'profile' },
+  { icon: LayoutDashboard, label: 'Overview',     id: 'overview', group: '' },
+  { icon: Calendar,        label: 'My Classes',   id: 'classes',  group: '' },
+  { icon: TrendingUp,      label: 'Progress',     id: 'progress', group: '' },
+  { icon: ShoppingBag,     label: 'Orders',       id: 'orders',   group: '' },
+  { icon: Settings,        label: 'Profile',      id: 'profile',  group: '' },
 ]
 
 const ADMIN_NAV = [
