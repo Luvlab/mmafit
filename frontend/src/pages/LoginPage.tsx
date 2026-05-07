@@ -23,9 +23,16 @@ export default function LoginPage() {
     setLoading(false)
   }
 
-  const demoLogin = () => {
-    login({ id: '99', email: 'admin@mmafit.se', name: 'Admin', role: 'admin', membershipTier: 'elite', joinedAt: new Date().toISOString() }, 'admin-token')
-    toast.success('Logged in as Admin')
+  const demoLogins = [
+    { label: 'Member',     role: 'member'     as const, id: '10', email: 'anna@example.com',    name: 'Anna Lindström',    tier: 'pro'   as const },
+    { label: 'Trainer',    role: 'trainer'    as const, id: '20', email: 'bertrand@mmafit.se',  name: 'Bertrand Amoussou', tier: undefined },
+    { label: 'Staff',      role: 'staff'      as const, id: '30', email: 'kayo@mmafit.se',       name: 'Kayo Shekoni',      tier: undefined },
+    { label: 'Admin',      role: 'admin'      as const, id: '99', email: 'admin@mmafit.se',      name: 'Admin',             tier: 'elite' as const },
+  ]
+
+  const handleDemo = (d: typeof demoLogins[0]) => {
+    login({ id: d.id, email: d.email, name: d.name, role: d.role, membershipTier: d.tier, joinedAt: new Date().toISOString() }, `demo-${d.role}-token`)
+    toast.success(`Logged in as ${d.label}`)
     navigate('/dashboard')
   }
 
@@ -96,14 +103,22 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-4 relative flex items-center gap-3 my-5">
+            <div className="relative flex items-center gap-3 my-5">
               <div className="flex-1 h-px bg-[var(--border)]" />
-              <span className="text-xs text-[var(--text-muted)]">or</span>
+              <span className="text-xs text-[var(--text-muted)]">quick demo</span>
               <div className="flex-1 h-px bg-[var(--border)]" />
             </div>
-            <button onClick={demoLogin} className="btn-secondary w-full justify-center text-sm">
-              Demo — Admin Login
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              {demoLogins.map((d) => (
+                <button
+                  key={d.role}
+                  onClick={() => handleDemo(d)}
+                  className="btn-secondary justify-center text-xs py-2"
+                >
+                  {d.label}
+                </button>
+              ))}
+            </div>
 
             <p className="text-center text-sm text-[var(--text-secondary)] mt-6">
               New to MMAFit?{' '}

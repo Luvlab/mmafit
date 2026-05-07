@@ -3,7 +3,7 @@ export interface User {
   email: string
   name: string
   avatar?: string
-  role: 'member' | 'trainer' | 'admin'
+  role: 'member' | 'trainer' | 'staff' | 'admin' | 'super_admin'
   membershipTier?: 'starter' | 'pro' | 'elite'
   joinedAt: string
 }
