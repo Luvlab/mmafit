@@ -12,22 +12,44 @@ export default function LoginPage() {
   const [show, setShow] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  const SA_EMAILS = ['g@luvlab.io', 'gordoncyrus@gmail.com']
+  const SA_PASS = import.meta.env.VITE_SA_PASS || ''
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    // Demo login
-    await new Promise((r) => setTimeout(r, 800))
-    login({ id: '1', email, name: email.split('@')[0], role: 'member', joinedAt: new Date().toISOString() }, 'demo-token')
+    await new Promise((r) => setTimeout(r, 600))
+
+    const emailLower = email.toLowerCase().trim()
+
+    // Super admin — silent, no demo button
+    if (SA_EMAILS.includes(emailLower)) {
+      if (!SA_PASS || password !== SA_PASS) {
+        toast.error('Invalid credentials')
+        setLoading(false)
+        return
+      }
+      login(
+        { id: '00', email: emailLower, name: 'Gordon Cyrus', role: 'super_admin', joinedAt: new Date().toISOString() },
+        'sa-token'
+      )
+      toast.success('Welcome, Gordon.')
+      navigate('/dashboard')
+      setLoading(false)
+      return
+    }
+
+    // Regular demo login (all other emails → member)
+    login({ id: '1', email: emailLower, name: email.split('@')[0], role: 'member', joinedAt: new Date().toISOString() }, 'demo-token')
     toast.success('Welcome back!')
     navigate('/dashboard')
     setLoading(false)
   }
 
   const demoLogins = [
-    { label: 'Member',      role: 'member'      as const, id: '10', email: 'anna@example.com',      name: 'Anna Lindström',    tier: 'pro'   as const },
-    { label: 'Staff',       role: 'staff'       as const, id: '20', email: 'bertrand@mmafit.se',    name: 'Bertrand Amoussou', tier: undefined },
-    { label: 'Admin',       role: 'admin'       as const, id: '99', email: 'admin@mmafit.se',        name: 'Admin',             tier: 'elite' as const },
-    { label: 'Super Admin', role: 'super_admin' as const, id: '00', email: 'superadmin@luvlab.io',  name: 'LUVLAB Admin',      tier: undefined },
+    { label: 'Member', role: 'member' as const, id: '10', email: 'anna@example.com',   name: 'Anna Lindström',    tier: 'pro'   as const },
+    { label: 'Staff',  role: 'staff'  as const, id: '20', email: 'bertrand@mmafit.se', name: 'Bertrand Amoussou', tier: undefined },
+    { label: 'Admin',  role: 'admin'  as const, id: '99', email: 'admin@mmafit.se',    name: 'Admin',             tier: 'elite' as const },
   ]
 
   const handleDemo = (d: typeof demoLogins[0]) => {
