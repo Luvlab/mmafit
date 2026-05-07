@@ -5,6 +5,7 @@ import {
   Star, TrendingUp, ShoppingBag, Flame, Clock, CheckCircle, ChevronRight,
   Download, Bell, ArrowUpRight, ArrowDownRight, BookOpen, Award, Zap,
   Music, Video, FileDown, BarChart2, AlertCircle, Play, Menu, X,
+  MapPin, Building2, Globe, Palette, Key, Activity, Layers, Plus, Edit2, Trash2, Cpu, ExternalLink,
 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { PROGRAMS, CLASS_SCHEDULE, TESTIMONIALS } from '../services/api'
@@ -237,6 +238,8 @@ const TRAINER_NAV = [
   { icon: Settings,        label: 'Profile',       id: 'profile',        group: '' },
 ]
 
+const STAFF_ROLES = ['Trainer', 'Instructor', 'Nurse', 'Doctor', 'Assistant', 'Coach']
+
 function TrainerOverview({ user }: { user: any }) {
   const myClasses = Object.values(CLASS_SCHEDULE).flat().filter((c: any) =>
     c.trainerName.toLowerCase().includes((user?.name || '').split(' ')[0]?.toLowerCase() || 'diana')
@@ -244,8 +247,8 @@ function TrainerOverview({ user }: { user: any }) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display font-black text-white text-3xl uppercase">Instructor Panel</h2>
-        <p className="text-[var(--text-secondary)] text-sm mt-1">Welcome, {user?.name || 'Instructor'} — certified MMAFit instructor</p>
+        <h2 className="font-display font-black text-white text-3xl uppercase">Staff Panel</h2>
+        <p className="text-[var(--text-secondary)] text-sm mt-1">Welcome, {user?.name || 'Staff'} — {user?.staffRole || 'MMAFit certified instructor'}</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPI label="Classes This Week" value="6" delta="+1" positive icon={Calendar} color="#e8202f" />
@@ -544,6 +547,7 @@ const ADMIN_NAV = [
   { icon: LayoutDashboard, label: 'Overview',      id: 'overview',    group: 'Main' },
   { icon: Users,           label: 'Members',       id: 'members',     group: 'Main' },
   { icon: Calendar,        label: 'Classes',       id: 'classes',     group: 'Main' },
+  { icon: Building2,       label: 'Spaces',        id: 'spaces',      group: 'Main' },
   { icon: UserPlus,        label: 'Instructors',   id: 'staff',       group: 'Main' },
   { icon: Package,         label: 'Shop',          id: 'shop',        group: 'Main' },
   { icon: Megaphone,       label: 'Marketing',     id: 'marketing',   group: 'Business' },
@@ -865,6 +869,394 @@ function AdminTaxReports() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// ADMIN — SPACES
+// ══════════════════════════════════════════════════════════════════════════════
+const SPACE_TYPES = ['Owned', 'Rented', 'Partner Gym', 'Pop-up'] as const
+type SpaceType = typeof SPACE_TYPES[number]
+
+interface Space {
+  id: string; name: string; type: SpaceType; address: string; city: string
+  country: string; programs: string[]; capacity: number; monthlyCost: number
+  currency: string; notes: string; status: 'Active' | 'Inactive'
+}
+
+const MOCK_SPACES: Space[] = [
+  { id: '1', name: 'MMAFit Studio Stockholm', type: 'Owned', address: 'Sveavägen 44', city: 'Stockholm', country: 'Sweden', programs: ['Punch','Groove','Hit','Power','Kids'], capacity: 40, monthlyCost: 0, currency: 'EUR', notes: 'Main flagship location. Mirrors, bags, full AV rig.', status: 'Active' },
+  { id: '2', name: 'FitZone Gothenburg', type: 'Partner Gym', address: 'Kungsportsavenyn 21', city: 'Gothenburg', country: 'Sweden', programs: ['Punch','Groove'], capacity: 25, monthlyCost: 150, currency: 'EUR', notes: 'Weekend classes only. Key handover with facility manager Björn.', status: 'Active' },
+  { id: '3', name: 'Urban Gym Malmö', type: 'Rented', address: 'Stortorget 9', city: 'Malmö', country: 'Sweden', programs: ['Hit','Power'], capacity: 20, monthlyCost: 300, currency: 'EUR', notes: 'Rented Wed + Fri evenings 18:00–21:00.', status: 'Active' },
+]
+
+const EMPTY_SPACE: Space = { id: '', name: '', type: 'Rented', address: '', city: '', country: 'Sweden', programs: [], capacity: 20, monthlyCost: 0, currency: 'EUR', notes: '', status: 'Active' }
+
+const TYPE_COLORS: Record<SpaceType, string> = { 'Owned': '#34c759', 'Rented': '#f5a623', 'Partner Gym': '#9b59b6', 'Pop-up': '#ff6b35' }
+
+function AdminSpaces() {
+  const [spaces, setSpaces] = useState<Space[]>(MOCK_SPACES)
+  const [form, setForm] = useState<Space>({ ...EMPTY_SPACE })
+  const [editing, setEditing] = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
+
+  const openAdd = () => { setForm({ ...EMPTY_SPACE }); setEditing(null); setShowForm(true) }
+  const openEdit = (s: Space) => { setForm({ ...s }); setEditing(s.id); setShowForm(true) }
+  const remove = (id: string) => setSpaces(s => s.filter(x => x.id !== id))
+  const cancel = () => { setShowForm(false); setEditing(null); setForm({ ...EMPTY_SPACE }) }
+
+  const save = () => {
+    if (!form.name.trim()) return
+    if (editing) {
+      setSpaces(s => s.map(x => x.id === editing ? { ...form, id: editing } : x))
+    } else {
+      setSpaces(s => [...s, { ...form, id: Date.now().toString() }])
+    }
+    cancel()
+  }
+
+  const toggleProgram = (p: string) => {
+    setForm(f => ({ ...f, programs: f.programs.includes(p) ? f.programs.filter(x => x !== p) : [...f.programs, p] }))
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h2 className="font-display font-black text-white text-3xl uppercase">Spaces</h2>
+          <p className="text-[var(--text-secondary)] text-sm mt-1">Training venues, partner gyms, and rented locations</p>
+        </div>
+        <button onClick={openAdd} className="btn-primary flex items-center gap-2 text-sm">
+          <Plus size={15} /> Add Space
+        </button>
+      </div>
+
+      {/* Add / Edit form */}
+      {showForm && (
+        <div className="card p-6 border border-[var(--accent)]/30">
+          <h3 className="font-display font-bold text-white uppercase mb-5">{editing ? 'Edit Space' : 'New Space'}</h3>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label className="block text-xs text-[var(--text-secondary)] mb-1.5">Space Name *</label>
+              <input className="input-dark" placeholder="e.g. FitZone Stockholm" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs text-[var(--text-secondary)] mb-1.5">Type</label>
+              <select className="input-dark" value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value as SpaceType }))}>
+                {SPACE_TYPES.map(t => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-[var(--text-secondary)] mb-1.5">Status</label>
+              <select className="input-dark" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as Space['status'] }))}>
+                <option>Active</option><option>Inactive</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-[var(--text-secondary)] mb-1.5">Address</label>
+              <input className="input-dark" placeholder="Street address" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs text-[var(--text-secondary)] mb-1.5">City</label>
+              <input className="input-dark" placeholder="City" value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs text-[var(--text-secondary)] mb-1.5">Country</label>
+              <input className="input-dark" placeholder="Country" value={form.country} onChange={e => setForm(f => ({ ...f, country: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs text-[var(--text-secondary)] mb-1.5">Capacity (people)</label>
+              <input className="input-dark" type="number" min={1} value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: +e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs text-[var(--text-secondary)] mb-1.5">Monthly Cost (EUR) — 0 if owned</label>
+              <input className="input-dark" type="number" min={0} value={form.monthlyCost} onChange={e => setForm(f => ({ ...f, monthlyCost: +e.target.value }))} />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs text-[var(--text-secondary)] mb-2">Programs offered here</label>
+              <div className="flex flex-wrap gap-2">
+                {PROGRAMS.map(p => {
+                  const active = form.programs.includes(p.slug)
+                  return (
+                    <button key={p.slug} type="button" onClick={() => toggleProgram(p.slug)}
+                      className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                      style={{ background: active ? `${p.color}25` : 'var(--bg-primary)', color: active ? p.color : 'var(--text-muted)', border: `1px solid ${active ? p.color : 'var(--border)'}` }}>
+                      {p.name}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs text-[var(--text-secondary)] mb-1.5">Notes</label>
+              <textarea className="input-dark resize-none min-h-[72px]" placeholder="Access info, contact person, schedule notes…" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
+            </div>
+          </div>
+          <div className="flex gap-3 mt-5">
+            <button onClick={save} className="btn-primary text-sm px-6">{editing ? 'Save Changes' : 'Add Space'}</button>
+            <button onClick={cancel} className="btn-secondary text-sm px-5">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* Spaces list */}
+      {spaces.length === 0 && !showForm && (
+        <div className="card p-10 text-center">
+          <MapPin size={32} className="text-[var(--text-muted)] mx-auto mb-3" />
+          <p className="text-[var(--text-secondary)] text-sm">No spaces added yet. Click <span className="text-white font-medium">Add Space</span> to get started.</p>
+        </div>
+      )}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {spaces.map(space => (
+          <div key={space.id} className="card p-5 flex flex-col gap-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${TYPE_COLORS[space.type]}15`, border: `1px solid ${TYPE_COLORS[space.type]}30` }}>
+                  <Building2 size={16} style={{ color: TYPE_COLORS[space.type] }} />
+                </div>
+                <div>
+                  <div className="text-white text-sm font-semibold leading-tight">{space.name}</div>
+                  <div className="text-[var(--text-muted)] text-xs mt-0.5">{space.city}, {space.country}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <button onClick={() => openEdit(space)} className="p-1.5 text-[var(--text-muted)] hover:text-white rounded transition-colors"><Edit2 size={13} /></button>
+                <button onClick={() => remove(space.id)} className="p-1.5 text-[var(--text-muted)] hover:text-[var(--accent)] rounded transition-colors"><Trash2 size={13} /></button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge text={space.type} color={TYPE_COLORS[space.type]} />
+              <Badge text={space.status} color={space.status === 'Active' ? '#34c759' : '#888'} />
+              {space.monthlyCost > 0 && <Badge text={`€${space.monthlyCost}/mo`} color="#f5a623" />}
+            </div>
+
+            <div className="text-xs text-[var(--text-secondary)] flex items-start gap-1.5">
+              <MapPin size={11} className="shrink-0 mt-0.5 text-[var(--text-muted)]" />
+              {space.address}, {space.city}
+            </div>
+
+            <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+              <Users size={11} /> {space.capacity} capacity
+            </div>
+
+            {space.programs.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {space.programs.map(slug => {
+                  const p = PROGRAMS.find(x => x.slug === slug)
+                  return p ? <Badge key={slug} text={p.name.replace('MMAFit ', '')} color={p.color} /> : null
+                })}
+              </div>
+            )}
+
+            {space.notes && (
+              <p className="text-[var(--text-muted)] text-xs leading-relaxed border-t border-[var(--border)] pt-3">{space.notes}</p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Cost summary */}
+      {spaces.length > 0 && (
+        <div className="card p-5 flex items-center justify-between flex-wrap gap-3">
+          <div className="text-sm text-[var(--text-secondary)]">
+            <span className="text-white font-semibold">{spaces.filter(s => s.status === 'Active').length}</span> active spaces ·{' '}
+            <span className="text-white font-semibold">{spaces.reduce((a, s) => a + s.capacity, 0)}</span> total capacity
+          </div>
+          <div className="text-sm">
+            <span className="text-[var(--text-secondary)]">Monthly space costs: </span>
+            <span className="text-[var(--accent)] font-bold">€{spaces.reduce((a, s) => a + s.monthlyCost, 0).toLocaleString()}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SUPER ADMIN — LUVLAB PLATFORM
+// ══════════════════════════════════════════════════════════════════════════════
+const SUPER_ADMIN_NAV = [
+  { icon: Globe,          label: 'Platform',      id: 'platform',   group: 'LUVLAB' },
+  { icon: Layers,         label: 'Tenants',        id: 'tenants',    group: 'LUVLAB' },
+  { icon: Users,          label: 'All Users',      id: 'allusers',   group: 'LUVLAB' },
+  { icon: Palette,        label: 'Theming',        id: 'theming',    group: 'System' },
+  { icon: Key,            label: 'API Keys',       id: 'apis',       group: 'System' },
+  { icon: Activity,       label: 'System Health',  id: 'health',     group: 'System' },
+  { icon: Shield,         label: 'Permissions',    id: 'perms',      group: 'System' },
+  { icon: Settings,       label: 'Settings',       id: 'settings',   group: 'System' },
+]
+
+function SuperAdminPlatform() {
+  const tenants = [
+    { name: 'MMAFit Sweden', plan: 'Pro', members: 2418, revenue: 24800, status: 'Active', since: 'Jan 2024' },
+    { name: 'FitForce Berlin', plan: 'Starter', members: 340, revenue: 3200, status: 'Active', since: 'Mar 2025' },
+    { name: 'Iron House Oslo', plan: 'Pro', members: 890, revenue: 9100, status: 'Trial', since: 'Apr 2026' },
+  ]
+  return (
+    <div className="space-y-6">
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-6 h-6 rounded bg-[var(--accent)] flex items-center justify-center"><Cpu size={13} className="text-white" /></div>
+          <span className="text-[var(--text-muted)] text-xs font-bold uppercase tracking-widest">LUVLAB.io Super Admin</span>
+        </div>
+        <h2 className="font-display font-black text-white text-3xl uppercase">Platform Overview</h2>
+        <p className="text-[var(--text-secondary)] text-sm mt-1">Full-system access across all tenants, APIs, and settings</p>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPI label="Active Tenants" value="3" delta="+1" positive icon={Layers} color="#e8202f" />
+        <KPI label="Total Users" value="3,648" delta="+18%" positive icon={Users} color="#9b59b6" />
+        <KPI label="Platform MRR" value="€37.1k" delta="+9%" positive icon={DollarSign} color="#34c759" />
+        <KPI label="API Uptime" value="99.97%" icon={Activity} color="#34c759" />
+      </div>
+
+      <div className="card p-6">
+        <h3 className="font-display font-bold text-white uppercase mb-4">Tenants</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[var(--border)]">
+                {['Organization','Plan','Members','MRR','Status','Since'].map(h => (
+                  <th key={h} className="text-left px-4 py-2 text-[var(--text-muted)] text-xs font-semibold uppercase tracking-wide">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {tenants.map(t => (
+                <tr key={t.name} className="border-b border-[var(--border)]/50 hover:bg-[var(--bg-card)] transition-colors">
+                  <td className="px-4 py-3 text-white font-medium">{t.name}</td>
+                  <td className="px-4 py-3"><Badge text={t.plan} color={t.plan === 'Pro' ? '#9b59b6' : '#f5a623'} /></td>
+                  <td className="px-4 py-3 text-[var(--text-secondary)]">{t.members.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-white font-medium">€{t.revenue.toLocaleString()}</td>
+                  <td className="px-4 py-3"><Badge text={t.status} color={t.status === 'Active' ? '#34c759' : '#f5a623'} /></td>
+                  <td className="px-4 py-3 text-[var(--text-secondary)]">{t.since}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="grid sm:grid-cols-3 gap-4">
+        {[
+          { label: 'Supabase (DB)', status: 'Healthy', latency: '12ms', icon: Cpu, color: '#34c759' },
+          { label: 'Vercel Edge', status: 'Healthy', latency: '8ms', icon: Globe, color: '#34c759' },
+          { label: 'Stripe Payments', status: 'Healthy', latency: '45ms', icon: DollarSign, color: '#34c759' },
+        ].map(s => (
+          <div key={s.label} className="card p-5 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${s.color}15`, border: `1px solid ${s.color}30` }}>
+              <s.icon size={18} style={{ color: s.color }} />
+            </div>
+            <div>
+              <div className="text-white text-sm font-medium">{s.label}</div>
+              <div className="text-xs mt-0.5"><Badge text={s.status} color={s.color} /></div>
+              <div className="text-[var(--text-muted)] text-xs mt-1">Latency: {s.latency}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function SuperAdminTheming() {
+  const [vars, setVars] = useState([
+    { key: '--accent',       label: 'Accent / Brand Red',  value: '#e8202f', type: 'color' },
+    { key: '--bg-primary',   label: 'Background Primary',  value: '#080808', type: 'color' },
+    { key: '--bg-secondary', label: 'Background Secondary',value: '#111111', type: 'color' },
+    { key: '--bg-card',      label: 'Card Background',     value: '#161616', type: 'color' },
+    { key: '--text-primary', label: 'Text Primary',        value: '#ffffff', type: 'color' },
+    { key: '--text-secondary',label: 'Text Secondary',     value: '#a0a0a0', type: 'color' },
+    { key: '--border',       label: 'Border Color',        value: '#2a2a2a', type: 'color' },
+    { key: '--gold',         label: 'Gold / Warning',      value: '#f5a623', type: 'color' },
+  ])
+
+  const applyLive = (key: string, value: string) => {
+    document.documentElement.style.setProperty(key, value)
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="font-display font-black text-white text-3xl uppercase">Theming</h2>
+        <p className="text-[var(--text-secondary)] text-sm mt-1">Edit CSS variables — changes preview live across the entire platform</p>
+      </div>
+      <div className="card p-6">
+        <div className="grid sm:grid-cols-2 gap-4">
+          {vars.map(v => (
+            <div key={v.key} className="flex items-center gap-3 p-3 bg-[var(--bg-primary)] rounded-lg">
+              <input
+                type="color"
+                value={v.value}
+                onChange={e => {
+                  setVars(prev => prev.map(x => x.key === v.key ? { ...x, value: e.target.value } : x))
+                  applyLive(v.key, e.target.value)
+                }}
+                className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent p-0.5"
+              />
+              <div className="min-w-0">
+                <div className="text-white text-sm font-medium">{v.label}</div>
+                <div className="text-[var(--text-muted)] text-xs font-mono">{v.key}</div>
+              </div>
+              <div className="ml-auto text-xs text-[var(--text-muted)] font-mono">{v.value}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 flex gap-3">
+          <button className="btn-primary text-sm px-5">Save Theme</button>
+          <button onClick={() => { setVars(prev => prev.map(v => { applyLive(v.key, v.value); return v })); }} className="btn-secondary text-sm px-5">Reset to Default</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SuperAdminAPIs() {
+  const apis = [
+    { name: 'Supabase', key: 'eyJhbGci…xGZn8', status: 'Active', scope: 'Database / Auth', last: '2 min ago' },
+    { name: 'Stripe',   key: 'sk_live_…4kRt9', status: 'Active', scope: 'Payments',        last: '1 hr ago' },
+    { name: 'Ticketmaster', key: 'fZ9mQ…BwA3', status: 'Active', scope: 'Events',          last: '5 min ago' },
+    { name: 'SendGrid', key: 'SG.Xf3…tR2',     status: 'Active', scope: 'Email',           last: '12 hr ago' },
+    { name: 'Instagram', key: 'IGQVJ…H9dF',    status: 'Active', scope: 'Social / Posts',  last: '30 min ago' },
+    { name: 'Skatteverket', key: '—',           status: 'Pending', scope: 'Tax Reporting',  last: 'Not set up' },
+  ]
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h2 className="font-display font-black text-white text-3xl uppercase">API Keys</h2>
+          <p className="text-[var(--text-secondary)] text-sm mt-1">Manage integrations and service credentials</p>
+        </div>
+        <button className="btn-primary flex items-center gap-2 text-sm"><Plus size={15} /> Add Integration</button>
+      </div>
+      <div className="card overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-[var(--border)] bg-[var(--bg-primary)]">
+              {['Service','Key (masked)','Scope','Status','Last Used'].map(h => (
+                <th key={h} className="text-left px-4 py-3 text-[var(--text-muted)] text-xs font-semibold uppercase tracking-wide">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {apis.map(a => (
+              <tr key={a.name} className="border-b border-[var(--border)]/50 hover:bg-[var(--bg-card)] transition-colors">
+                <td className="px-4 py-3 text-white font-medium">{a.name}</td>
+                <td className="px-4 py-3 font-mono text-xs text-[var(--text-muted)]">{a.key}</td>
+                <td className="px-4 py-3 text-[var(--text-secondary)]">{a.scope}</td>
+                <td className="px-4 py-3"><Badge text={a.status} color={a.status === 'Active' ? '#34c759' : '#f5a623'} /></td>
+                <td className="px-4 py-3 text-[var(--text-muted)]">{a.last}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="card p-5 flex items-start gap-3">
+        <Shield size={16} className="text-[var(--accent)] shrink-0 mt-0.5" />
+        <p className="text-xs text-[var(--text-secondary)] leading-relaxed">API keys are encrypted at rest in Supabase Vault. Never expose <code className="text-[var(--accent)]">sk_live_</code> or database keys in client-side code. Rotate keys quarterly or immediately after suspected compromise.</p>
+      </div>
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // GENERIC PLACEHOLDER PANEL
 // ══════════════════════════════════════════════════════════════════════════════
 function Placeholder({ label }: { label: string }) {
@@ -965,14 +1357,32 @@ function DashboardShell({ nav, activePanel, setActivePanel, user, logout, title,
 // ══════════════════════════════════════════════════════════════════════════════
 export default function DashboardPage() {
   const { user, logout } = useAuthStore()
-  const [activePanel, setActivePanel] = useState('overview')
-  const role = user?.role || 'MEMBER'
+  const role = user?.role || 'member'
+  const [activePanel, setActivePanel] = useState(role === 'super_admin' ? 'platform' : 'overview')
 
-  // ── ADMIN ──────────────────────────────────────────────────────────────────
-  if (role === 'admin' || role === 'super_admin') {
+  // ── SUPER ADMIN (LUVLAB platform) ─────────────────────────────────────────
+  if (role === 'super_admin') {
+    const panel = (() => {
+      switch (activePanel) {
+        case 'platform': return <SuperAdminPlatform />
+        case 'theming':  return <SuperAdminTheming />
+        case 'apis':     return <SuperAdminAPIs />
+        default:         return <Placeholder label={SUPER_ADMIN_NAV.find(n => n.id === activePanel)?.label || activePanel} />
+      }
+    })()
+    return (
+      <DashboardShell nav={SUPER_ADMIN_NAV} activePanel={activePanel} setActivePanel={setActivePanel} user={user} logout={logout} title={SUPER_ADMIN_NAV.find(n => n.id === activePanel)?.label || 'LUVLAB'}>
+        {panel}
+      </DashboardShell>
+    )
+  }
+
+  // ── ADMIN (MMAFit founders / company management) ──────────────────────────
+  if (role === 'admin') {
     const panel = (() => {
       switch (activePanel) {
         case 'overview':    return <AdminOverview />
+        case 'spaces':      return <AdminSpaces />
         case 'staff':       return <AdminInstructors />
         case 'marketing':   return <AdminMarketing />
         case 'bookkeeping': return <AdminBookkeeping />
@@ -987,23 +1397,8 @@ export default function DashboardPage() {
     )
   }
 
-  // ── STAFF ──────────────────────────────────────────────────────────────────
-  if (role === 'staff') {
-    const panel = (() => {
-      switch (activePanel) {
-        case 'overview': return <StaffOverview />
-        default:         return <Placeholder label={STAFF_NAV.find(n => n.id === activePanel)?.label || activePanel} />
-      }
-    })()
-    return (
-      <DashboardShell nav={STAFF_NAV} activePanel={activePanel} setActivePanel={setActivePanel} user={user} logout={logout} title={STAFF_NAV.find(n => n.id === activePanel)?.label || 'Staff'}>
-        {panel}
-      </DashboardShell>
-    )
-  }
-
-  // ── TRAINER / INSTRUCTOR ───────────────────────────────────────────────────
-  if (role === 'trainer') {
+  // ── STAFF (trainers, instructors, nurses, doctors, assistants) ─────────────
+  if (role === 'staff' || role === 'trainer') {
     const panel = (() => {
       switch (activePanel) {
         case 'overview':      return <TrainerOverview user={user} />
@@ -1014,13 +1409,13 @@ export default function DashboardPage() {
       }
     })()
     return (
-      <DashboardShell nav={TRAINER_NAV} activePanel={activePanel} setActivePanel={setActivePanel} user={user} logout={logout} title={TRAINER_NAV.find(n => n.id === activePanel)?.label || 'Instructor'}>
+      <DashboardShell nav={TRAINER_NAV} activePanel={activePanel} setActivePanel={setActivePanel} user={user} logout={logout} title={TRAINER_NAV.find(n => n.id === activePanel)?.label || 'Staff'}>
         {panel}
       </DashboardShell>
     )
   }
 
-  // ── MEMBER (default) ───────────────────────────────────────────────────────
+  // ── MEMBER (clients, people who train) ───────────────────────────────────
   const panel = (() => {
     switch (activePanel) {
       case 'overview':  return <MemberOverview user={user} />

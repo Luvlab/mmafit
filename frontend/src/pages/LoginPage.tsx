@@ -24,10 +24,10 @@ export default function LoginPage() {
   }
 
   const demoLogins = [
-    { label: 'Member',     role: 'member'     as const, id: '10', email: 'anna@example.com',    name: 'Anna Lindström',    tier: 'pro'   as const },
-    { label: 'Trainer',    role: 'trainer'    as const, id: '20', email: 'bertrand@mmafit.se',  name: 'Bertrand Amoussou', tier: undefined },
-    { label: 'Staff',      role: 'staff'      as const, id: '30', email: 'kayo@mmafit.se',       name: 'Kayo Shekoni',      tier: undefined },
-    { label: 'Admin',      role: 'admin'      as const, id: '99', email: 'admin@mmafit.se',      name: 'Admin',             tier: 'elite' as const },
+    { label: 'Member',      role: 'member'      as const, id: '10', email: 'anna@example.com',      name: 'Anna Lindström',    tier: 'pro'   as const },
+    { label: 'Staff',       role: 'staff'       as const, id: '20', email: 'bertrand@mmafit.se',    name: 'Bertrand Amoussou', tier: undefined },
+    { label: 'Admin',       role: 'admin'       as const, id: '99', email: 'admin@mmafit.se',        name: 'Admin',             tier: 'elite' as const },
+    { label: 'Super Admin', role: 'super_admin' as const, id: '00', email: 'superadmin@luvlab.io',  name: 'LUVLAB Admin',      tier: undefined },
   ]
 
   const handleDemo = (d: typeof demoLogins[0]) => {

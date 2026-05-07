@@ -4,6 +4,7 @@ export interface User {
   name: string
   avatar?: string
   role: 'member' | 'trainer' | 'staff' | 'admin' | 'super_admin'
+  staffRole?: string
   membershipTier?: 'starter' | 'pro' | 'elite'
   joinedAt: string
 }
