@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "mmafit-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "/Users/gordoncyrus/Documents/dev/MMAFIT/frontend",
+      "port": 5174
+    }
+  ]
+}

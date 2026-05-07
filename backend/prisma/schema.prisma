@@ -1,0 +1,414 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Users & Auth ─────────────────────────────────────────────────────────────
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String
+  passwordHash   String
+  role           Role     @default(MEMBER)
+  avatar         String?
+  phone          String?
+  membershipTier MembershipTier @default(STARTER)
+  membershipActive Boolean @default(false)
+  membershipEndsAt DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  bookings       Booking[]
+  orders         Order[]
+  workoutLogs    WorkoutLog[]
+  staffProfile   Staff?
+  notifications  Notification[]
+
+  @@index([email])
+  @@index([role])
+}
+
+enum Role {
+  MEMBER
+  TRAINER
+  STAFF
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum MembershipTier {
+  FREE
+  STARTER
+  PRO
+  ELITE
+}
+
+// ── Staff ────────────────────────────────────────────────────────────────────
+model Staff {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contractType    ContractType @default(EMPLOYED)
+  monthlySalary   Float?
+  fSkattNumber    String?
+  taxId           String?
+  startDate       DateTime
+  endDate         DateTime?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  classSchedules  ClassSession[]
+}
+
+enum ContractType {
+  EMPLOYED
+  F_SKATT
+  FREELANCE
+}
+
+// ── Programs ─────────────────────────────────────────────────────────────────
+model Program {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  tagline     String
+  description String
+  level       Level    @default(ALL)
+  duration    Int
+  calories    Int
+  image       String?
+  color       String   @default("#e8202f")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sessions    ClassSession[]
+}
+
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  ALL
+}
+
+// ── Class Sessions ────────────────────────────────────────────────────────────
+model ClassSession {
+  id          String   @id @default(cuid())
+  programId   String
+  program     Program  @relation(fields: [programId], references: [id])
+  trainerId   String
+  trainer     Staff    @relation(fields: [trainerId], references: [id])
+  day         DayOfWeek
+  time        String
+  duration    Int
+  capacity    Int      @default(20)
+  location    String   @default("Main Studio")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings    Booking[]
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+// ── Bookings ─────────────────────────────────────────────────────────────────
+model Booking {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  sessionId     String
+  session       ClassSession @relation(fields: [sessionId], references: [id])
+  scheduledDate DateTime
+  status        BookingStatus @default(CONFIRMED)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, sessionId, scheduledDate])
+}
+
+enum BookingStatus {
+  CONFIRMED
+  WAITLISTED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+// ── Shop ─────────────────────────────────────────────────────────────────────
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  category    ProductCategory
+  image       String?
+  sizes       String[]
+  colors      String[]
+  stock       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems  OrderItem[]
+}
+
+enum ProductCategory {
+  APPAREL
+  EQUIPMENT
+  ACCESSORIES
+  NUTRITION
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  total       Float
+  status      OrderStatus @default(PENDING)
+  shippingAddress Json?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items       OrderItem[]
+  transaction Transaction?
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+  size      String?
+  color     String?
+}
+
+// ── Membership Payments ───────────────────────────────────────────────────────
+model Subscription {
+  id          String   @id @default(cuid())
+  userId      String
+  tier        MembershipTier
+  price       Float
+  currency    String   @default("SEK")
+  startDate   DateTime
+  endDate     DateTime?
+  autoRenew   Boolean  @default(true)
+  status      SubStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum SubStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+}
+
+// ── Bookkeeping / Transactions ────────────────────────────────────────────────
+model Transaction {
+  id          String   @id @default(cuid())
+  type        TransactionType
+  category    TxCategory
+  amount      Float
+  currency    String   @default("SEK")
+  description String
+  partyName   String?
+  reference   String?
+  orderId     String?  @unique
+  order       Order?   @relation(fields: [orderId], references: [id])
+  date        DateTime @default(now())
+  vatRate     Float    @default(0.25)
+  vatAmount   Float    @default(0)
+  netAmount   Float
+  receiptUrl  String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([type])
+  @@index([date])
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  REFUND
+}
+
+enum TxCategory {
+  MEMBERSHIP
+  SHOP
+  CERTIFICATION
+  FRANCHISE
+  SALARY
+  RENT
+  EQUIPMENT
+  MARKETING
+  OTHER
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  type        EventType @default(CLASS)
+  startDate   DateTime
+  endDate     DateTime?
+  location    String?
+  capacity    Int?
+  price       Float?
+  image       String?
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum EventType {
+  CLASS
+  WORKSHOP
+  CERTIFICATION
+  COMPETITION
+  SOCIAL
+  FRANCHISE_DEMO
+}
+
+// ── Marketing / Promo ─────────────────────────────────────────────────────────
+model PromoCode {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  type        PromoType
+  value       Float
+  maxUses     Int?
+  usedCount   Int      @default(0)
+  validFrom   DateTime @default(now())
+  validTo     DateTime?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum PromoType {
+  PERCENT_OFF
+  FIXED_OFF
+  FREE_CLASS
+}
+
+model EmailCampaign {
+  id        String   @id @default(cuid())
+  subject   String
+  body      String
+  segment   String   @default("ALL")
+  status    CampaignStatus @default(DRAFT)
+  sentAt    DateTime?
+  openRate  Float?
+  clickRate Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENT
+  FAILED
+}
+
+// ── Certifications ────────────────────────────────────────────────────────────
+model CertApplication {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  background  String?
+  gymName     String?
+  country     String?
+  status      CertStatus @default(PENDING)
+  notes       String?
+  paidAt      DateTime?
+  certIssuedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum CertStatus {
+  PENDING
+  APPROVED
+  PAID
+  CERTIFIED
+  REJECTED
+}
+
+// ── Franchise ─────────────────────────────────────────────────────────────────
+model FranchiseLicense {
+  id          String   @id @default(cuid())
+  gymName     String
+  contactName String
+  email       String
+  country     String
+  categories  String[]
+  monthlyFee  Float
+  startDate   DateTime
+  endDate     DateTime?
+  status      LicenseStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum LicenseStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+}
+
+// ── Workout Log ───────────────────────────────────────────────────────────────
+model WorkoutLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  programName String
+  duration    Int
+  calories    Int
+  notes       String?
+  loggedAt    DateTime @default(now())
+}
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

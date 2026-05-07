@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mmafit-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mmafit
+      POSTGRES_PASSWORD: mmafit_secret
+      POSTGRES_DB: mmafit
+    ports:
+      - '5433:5432'
+    volumes:
+      - mmafit_pg_data:/var/lib/postgresql/data
+
+  # Uncomment to run backend in Docker:
+  # backend:
+  #   build: ./backend
+  #   container_name: mmafit-api
+  #   restart: unless-stopped
+  #   environment:
+  #     DATABASE_URL: postgresql://mmafit:mmafit_secret@postgres:5432/mmafit
+  #     JWT_SECRET: change-me-in-production
+  #     PORT: 3002
+  #   ports:
+  #     - '3002:3002'
+  #   depends_on:
+  #     - postgres
+
+volumes:
+  mmafit_pg_data:
