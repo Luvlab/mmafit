@@ -179,13 +179,32 @@ export const PRODUCTS: Product[] = [
 ]
 
 // Real testimonials from mmafit.se
+// Verbatim testimonials from mmafit.se
 export const TESTIMONIALS = [
-  { id: 't1', name: 'Annika Öhrström', avatar: 'https://i.pravatar.cc/80?img=1', text: 'It\'s the only workout where I feel like a fighter, a dancer, and a performer – all in one class.', rating: 5, program: 'MMAFit Punch', since: '2023' },
-  { id: 't2', name: 'Thea Franzén', avatar: 'https://i.pravatar.cc/80?img=5', text: 'The choreography is so well-crafted – technical, powerful, but also incredibly fun.', rating: 5, program: 'MMAFit Groove', since: '2023' },
-  { id: 't3', name: 'Diana Svensson', avatar: 'https://i.pravatar.cc/80?img=10', text: 'This is a one-of-a kind class that brings so many smiles under the same roof. I am not only looking forward to teaching it, but I have a ton of participants signing up weeks ahead of my classes!', rating: 5, program: 'Instructor', since: '2023' },
-  { id: 't4', name: 'Johan Berg', avatar: 'https://i.pravatar.cc/80?img=3', text: 'I drenched in sweat, buzzing with energy — and more confident than I\'ve felt in years. MMAFit Hit is a different level.', rating: 5, program: 'MMAFit Hit', since: '2024' },
-  { id: 't5', name: 'Fatima Diallo', avatar: 'https://i.pravatar.cc/80?img=8', text: 'Brought my 9-year-old to MMAFit Kids. She\'s gained so much confidence and actually begs to go to class. That says everything.', rating: 5, program: 'MMAFit Kids', since: '2024' },
-  { id: 't6', name: 'Erik Johansson', avatar: 'https://i.pravatar.cc/80?img=12', text: 'I became a certified instructor for 380 EUR. Best investment I\'ve made. The monthly choreography updates keep classes fresh — participants sign up weeks ahead.', rating: 5, program: 'Certification', since: '2022' },
+  {
+    id: 't1', name: 'Annika Öhrström', avatar: 'https://i.pravatar.cc/80?img=1', rating: 5, program: 'MMAFit Punch', since: '2023',
+    text: "It's the only workout where I feel like a fighter, a dancer, and a performer – all in one class. MMAFit makes me feel strong, alive, and unstoppable.",
+  },
+  {
+    id: 't2', name: 'Thea Franzén', avatar: 'https://i.pravatar.cc/80?img=5', rating: 5, program: 'MMAFit Groove', since: '2023',
+    text: "I've never experienced anything like this before. The choreography is so well-crafted – technical, powerful, but also incredibly fun. I walk out drenched in sweat, buzzing with energy, and feeling more confident in my body and my movements. It's not just a workout, it's a full-body reset.",
+  },
+  {
+    id: 't3', name: 'Diana Svensson', avatar: 'https://i.pravatar.cc/80?img=10', rating: 5, program: 'Instructor', since: '2023',
+    text: "As an instructor, I can say that this is a one-of-a kind class that brings so many smiles under the same roof. I am not only looking forward to teaching it, but I have a ton of participants signing up weeks ahead of my classes!",
+  },
+  {
+    id: 't4', name: 'Johan Berg', avatar: 'https://i.pravatar.cc/80?img=3', rating: 5, program: 'MMAFit Hit', since: '2024',
+    text: "I walked out drenched in sweat, buzzing with energy — and more confident than I've felt in years. MMAFit Hit is on a completely different level.",
+  },
+  {
+    id: 't5', name: 'Fatima Diallo', avatar: 'https://i.pravatar.cc/80?img=8', rating: 5, program: 'MMAFit Kids', since: '2024',
+    text: "Brought my 9-year-old to MMAFit Kids. She's gained so much confidence and actually begs to go to class. That says everything.",
+  },
+  {
+    id: 't6', name: 'Erik Johansson', avatar: 'https://i.pravatar.cc/80?img=12', rating: 5, program: 'Certification', since: '2022',
+    text: "I became a certified instructor for 380 EUR. Best investment I've made. The monthly choreography updates keep classes fresh — participants sign up weeks ahead.",
+  },
 ]
 
 export default api

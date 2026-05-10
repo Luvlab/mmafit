@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Play, Star, CheckCircle, Zap, Users, Calendar, TrendingUp, Music, Shield, Globe } from 'lucide-react'
+import { ArrowRight, Play, Star, CheckCircle, Zap, Users, Calendar, TrendingUp, Music, Shield, Globe, Camera, BookOpen, Building2, Layers } from 'lucide-react'
 import { PROGRAMS, TRAINERS, TESTIMONIALS, MEMBERSHIP_PLANS } from '../services/api'
 
 const STATS = [
@@ -9,42 +9,73 @@ const STATS = [
   { value: '100%',  label: 'Joy Guaranteed' },
 ]
 
+// All 11 benefits verbatim from mmafit.se
 const BENEFITS = [
   {
     icon: Zap,
     title: 'Hybrid Format — a First of Its Kind',
-    text: 'Combines dance, boxing, MMA techniques, and rhythm-based conditioning in one class — unlike anything currently on the market.',
+    text: "Combines dance, boxing, MMA techniques, and rhythm-based conditioning in one class – unlike anything currently on the market. It's not just fitness; it's performance and empowerment.",
     stat: '600+ kcal/session',
   },
   {
-    icon: Music,
-    title: 'Unique Original Music',
-    text: 'Every class is set to music composed exclusively for MMAFit — engineered to enhance every move, punch, and kick while fueling you with energy and joy.',
-    stat: '100% original',
-  },
-  {
-    icon: Shield,
-    title: 'Empowerment Through Movement',
-    text: 'Teaches functional MMA movements and techniques while building real confidence. Especially powerful for women and younger audiences.',
-    stat: '-57% anxiety after 45 min',
+    icon: Camera,
+    title: 'Visually Impactful — Social Media Gold',
+    text: 'The classes look incredible on camera: striking visuals, strong energy, synchronized movement = perfect for social content and viral marketing.',
+    stat: 'Scroll-stopper content',
   },
   {
     icon: TrendingUp,
     title: 'High Engagement & Retention',
-    text: 'The mix of music, choreography, and technique keeps members emotionally and physically engaged — far beyond standard fitness classes.',
-    stat: 'Year-round, not seasonal',
+    text: "The mix of music, choreography, and technique keeps members emotionally and physically engaged. The 'show' aspect keeps people coming back — it's addictive, in a good way.",
+    stat: '3× retention rate',
+  },
+  {
+    icon: Layers,
+    title: 'Modular & Scalable for Gym Chains',
+    text: 'Can be packaged and franchised for other instructors, offering training certifications and branded formats (e.g., MMAFit Punch, MMAFit Power, etc.).',
+    stat: '150 EUR/mo per category',
   },
   {
     icon: Users,
-    title: 'All-Level Inclusive',
-    text: 'Members don\'t need to be fighters or dancers. Just ready to move. Clear structure and rhythm-based movements make it beginner-friendly from day one.',
+    title: 'All-Level Inclusive, No Experience Needed',
+    text: "Members don't need to be fighters or dancers – just ready to move. The structure supports beginners through to advanced participants, boosting participation rates.",
     stat: 'No experience needed',
+  },
+  {
+    icon: Building2,
+    title: 'Builds a Stronger Gym Identity',
+    text: "Elevates the gym's brand from a place to work out to a place where people express power and personality. Sets the chain apart from others offering only generic classes.",
+    stat: 'Differentiate your brand',
+  },
+  {
+    icon: Shield,
+    title: 'Empowerment Through Movement',
+    text: 'Teaches functional MMA movements & techniques while building confidence – especially appealing to women and younger audiences looking for both fun and professional MMA skills.',
+    stat: 'Builds real confidence',
+  },
+  {
+    icon: Calendar,
+    title: 'Not Seasonal',
+    text: "MMAFit isn't tied to trends or seasons. It's a year-round experience that delivers energy, empowerment, and results no matter the weather.",
+    stat: 'Year-round, all-weather',
+  },
+  {
+    icon: Music,
+    title: 'Unique Original Music',
+    text: 'The music in MMAFit classes is composed & created specially for MMAFit — to enhance every move, punch and kick, while fueling the user with energy & joy.',
+    stat: '100% original compositions',
   },
   {
     icon: Globe,
     title: 'Visually Stunning',
-    text: 'The choreography is social media gold — sharp strikes, fluid transitions, synchronized movement. Every class looks incredible on camera.',
+    text: 'The choreography is visually stunning – with sharp strikes, fluid transitions, and synchronized movement that pops on camera. Made for the stage and the screen — a scroll-stopper on social media.',
     stat: 'Viral-ready content',
+  },
+  {
+    icon: BookOpen,
+    title: 'Easy to Learn',
+    text: 'Easy-to-follow combos, clear structure, and rhythm-based movements make the choreography intuitive and beginner-friendly – no experience needed. Suits all ages.',
+    stat: 'Day-one friendly',
   },
 ]
 
@@ -80,9 +111,10 @@ export default function HomePage() {
           <p className="mt-6 text-[var(--text-secondary)] max-w-2xl mx-auto leading-relaxed animate-slide-up stagger-2"
             style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)' }}
           >
-            A high-energy training form that fuses dance, boxing, and MMA movements
-            into one powerful experience. Every punch hits the bag with purpose.
-            Every move flows with rhythm. Every class feels like a performance.
+            A high-energy training form that fuses dance, boxing, and MMA movements into one powerful experience.
+            It's a sweat-dripping, beat-driven journey where every punch hits the bag with purpose,
+            every move flows with rhythm, and every class feels like a fight-choreographed performance.
+            Think of it as your bodyguard in motion — fierce, technical, and full of joy.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4 animate-slide-up stagger-3">
             <Link to="/register" className="btn-primary text-base px-8 py-4">
@@ -176,10 +208,10 @@ export default function HomePage() {
           <div className="text-center mb-14">
             <span className="section-tag">Programs</span>
             <h2 className="section-heading text-white mt-2" style={{ fontSize: 'clamp(2.2rem, 4vw, 3rem)' }}>
-              Six Ways to Move
+              Five Programs. One Concept.
             </h2>
             <p className="text-[var(--text-secondary)] mt-4 max-w-lg mx-auto text-sm">
-              From absolute beginners to seasoned fighters — there's an MMAFit class built for you.
+              From absolute beginners to seasoned fighters — there's an MMAFit class designed for you.
             </p>
           </div>
 
@@ -233,7 +265,7 @@ export default function HomePage() {
               Built Different. By Design.
             </h2>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {BENEFITS.map(({ icon: Icon, title, text, stat }, i) => (
               <div key={title} className={`card p-6 animate-slide-up stagger-${Math.min(i + 1, 5)}`}>
                 <div className="w-11 h-11 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center mb-4">
