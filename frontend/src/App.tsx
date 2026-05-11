@@ -19,6 +19,7 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import CertificationPage from './pages/CertificationPage'
 import FranchisePage from './pages/FranchisePage'
+import AccountPage from './pages/AccountPage'
 
 // VITE_APP_MODE: "admin" | "crew" | undefined (public)
 const APP_MODE = import.meta.env.VITE_APP_MODE as string | undefined
@@ -54,6 +55,7 @@ function Layout() {
               <Route path="/" element={<PortalRoot />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/account" element={<AccountPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </>
           ) : (
@@ -70,6 +72,7 @@ function Layout() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/account" element={<AccountPage />} />
               <Route path="/certification" element={<CertificationPage />} />
               <Route path="/franchise" element={<FranchisePage />} />
               <Route path="*" element={<HomePage />} />

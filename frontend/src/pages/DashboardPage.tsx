@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { usePWAInstall } from '../hooks/usePWAInstall'
 import {
   LayoutDashboard, Users, Calendar, UserPlus, Package, Megaphone, Target,
@@ -9,7 +10,7 @@ import {
   MapPin, Building2, Globe, Palette, Key, Activity, Layers, Plus, Edit2, Trash2, Cpu, ExternalLink,
   CreditCard, Sparkles, Lock, GraduationCap, PieChart, Brush, Type,
   Headphones, Receipt, TrendingDown, BadgeDollarSign, Landmark, MessageSquare,
-  CheckSquare, Send, RefreshCw, Wallet, BarChart,
+  CheckSquare, Send, RefreshCw, Wallet, BarChart, User,
 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { PROGRAMS, CLASS_SCHEDULE, TESTIMONIALS } from '../services/api'
@@ -65,6 +66,7 @@ const MEMBER_NAV = [
   { icon: TrendingUp,      label: 'My Progress', id: 'progress',  group: '' },
   { icon: ShoppingBag,     label: 'My Orders',   id: 'orders',    group: '' },
   { icon: Settings,        label: 'Profile',     id: 'profile',   group: '' },
+  { icon: User,            label: 'My Account',  id: 'account',   group: '', href: '/account' },
 ]
 
 function MemberOverview({ user }: { user: any }) {
@@ -2411,19 +2413,31 @@ function DashboardShell({ nav, activePanel, setActivePanel, user, logout, title,
               {group && (
                 <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-[var(--text-muted)] px-3 mb-1">{group}</p>
               )}
-              {nav.filter((n: any) => n.group === group).map(({ icon: Icon, label, id }: any) => (
-                <button
-                  key={id}
-                  onClick={() => { setActivePanel(id); setSidebarOpen(false) }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
-                    activePanel === id
-                      ? 'bg-[var(--accent)]/15 text-[var(--accent)] font-medium'
-                      : 'text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-card)]'
-                  }`}
-                >
-                  <Icon size={16} />
-                  {label}
-                </button>
+              {nav.filter((n: any) => n.group === group).map(({ icon: Icon, label, id, href }: any) => (
+                href ? (
+                  <Link
+                    key={id}
+                    to={href}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-card)]"
+                  >
+                    <Icon size={16} />
+                    {label}
+                    <ExternalLink size={11} className="ml-auto opacity-50" />
+                  </Link>
+                ) : (
+                  <button
+                    key={id}
+                    onClick={() => { setActivePanel(id); setSidebarOpen(false) }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                      activePanel === id
+                        ? 'bg-[var(--accent)]/15 text-[var(--accent)] font-medium'
+                        : 'text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-card)]'
+                    }`}
+                  >
+                    <Icon size={16} />
+                    {label}
+                  </button>
+                )
               ))}
             </div>
           ))}
