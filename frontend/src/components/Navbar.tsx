@@ -17,7 +17,8 @@ const NAV = [
 ]
 
 export default function Navbar() {
-  const { pathname } = useLocation()
+  const location = useLocation()
+  const { pathname } = location
   const { isAuthenticated, user, logout } = useAuthStore()
   const { count, toggleCart } = useCartStore()
   const cartCount = count()
@@ -95,7 +96,7 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-2">
-              <Link to="/login" className="btn-ghost text-sm">Sign in</Link>
+              <Link to="/login" state={{ backgroundLocation: location }} className="btn-ghost text-sm">Sign in</Link>
               <Link to="/register" className="btn-primary !py-2 !px-4 !text-sm">Join Now</Link>
             </div>
           )}
@@ -121,7 +122,7 @@ export default function Navbar() {
           ))}
           {!isAuthenticated && (
             <div className="pt-4 flex flex-col gap-3">
-              <Link to="/login" className="btn-secondary w-full justify-center">Sign in</Link>
+              <Link to="/login" state={{ backgroundLocation: location }} className="btn-secondary w-full justify-center">Sign in</Link>
               <Link to="/register" className="btn-primary w-full justify-center">Join Now</Link>
             </div>
           )}

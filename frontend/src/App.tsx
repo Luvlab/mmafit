@@ -30,27 +30,57 @@ function ScrollToTop() {
   return null
 }
 
-const HIDE_NAV = ['/login', '/register']
-
 function PortalRoot() {
   const { isAuthenticated } = useAuthStore()
   if (isAuthenticated) return <Navigate to="/dashboard" replace />
   return <Navigate to="/login" replace />
 }
 
+// All public site routes — reused for both background render and normal render
+function PublicRoutes() {
+  return (
+    <>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/programs" element={<ProgramsPage />} />
+      <Route path="/schedule" element={<SchedulePage />} />
+      <Route path="/trainers" element={<TrainersPage />} />
+      <Route path="/membership" element={<MembershipPage />} />
+      <Route path="/shop" element={<ShopPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/account" element={<AccountPage />} />
+      <Route path="/certification" element={<CertificationPage />} />
+      <Route path="/franchise" element={<FranchisePage />} />
+      {/* Direct /login access without background state — full page */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="*" element={<HomePage />} />
+    </>
+  )
+}
+
 function Layout() {
-  const { pathname } = useLocation()
-  const hideNav = HIDE_NAV.includes(pathname) || !!APP_MODE
+  const location = useLocation()
+  const state = location.state as { backgroundLocation?: Location } | null
+  const bgLocation = state?.backgroundLocation
+
+  // Modal mode: public site, at /login, navigated with backgroundLocation state
+  const isLoginModal = !APP_MODE && location.pathname === '/login' && !!bgLocation
+
+  // Hide navbar on full-page login/register (not when modal) or in portal mode
+  const hideNav = (!isLoginModal && ['/login', '/register'].includes(location.pathname)) || !!APP_MODE
 
   return (
     <>
-      <ScrollToTop />
+      {!isLoginModal && <ScrollToTop />}
       {!hideNav && <Navbar />}
       <CartSidebar />
+
       <main className="page-content">
-        <Routes>
+        <Routes location={bgLocation ?? location}>
           {APP_MODE ? (
-            // Portal mode — only dashboard + login, root auto-redirects
+            // Portal mode — login is always full-page
             <>
               <Route path="/" element={<PortalRoot />} />
               <Route path="/login" element={<LoginPage />} />
@@ -59,29 +89,20 @@ function Layout() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </>
           ) : (
-            // Full public site
-            <>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/programs" element={<ProgramsPage />} />
-              <Route path="/schedule" element={<SchedulePage />} />
-              <Route path="/trainers" element={<TrainersPage />} />
-              <Route path="/membership" element={<MembershipPage />} />
-              <Route path="/shop" element={<ShopPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/account" element={<AccountPage />} />
-              <Route path="/certification" element={<CertificationPage />} />
-              <Route path="/franchise" element={<FranchisePage />} />
-              <Route path="*" element={<HomePage />} />
-            </>
+            <PublicRoutes />
           )}
         </Routes>
       </main>
+
       {!hideNav && <Footer />}
       {!hideNav && <MobileTabBar />}
+
+      {/* Login modal overlay — only on public site when backgroundLocation is set */}
+      {isLoginModal && (
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+      )}
     </>
   )
 }
