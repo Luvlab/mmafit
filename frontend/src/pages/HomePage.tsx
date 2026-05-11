@@ -309,7 +309,7 @@ export default function HomePage() {
             ))}
           </div>
           <div className="text-center mt-8">
-            <Link to="/trainers" className="btn-secondary">Meet All Trainers <ArrowRight size={16} /></Link>
+            <Link to="/about" className="btn-secondary">Read Their Full Story <ArrowRight size={16} /></Link>
           </div>
         </div>
       </section>
