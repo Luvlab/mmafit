@@ -246,7 +246,7 @@ const TRAINER_NAV = [
   { icon: Settings,         label: 'Profile',        id: 'profile',       group: '' },
 ]
 
-const STAFF_ROLES = ['Trainer', 'Instructor', 'Nurse', 'Doctor', 'Assistant', 'Coach']
+const STAFF_ROLES = ['Instructor', 'Nurse', 'Doctor', 'Assistant', 'Coach']
 
 const STAFF_NAV = [
   { icon: LayoutDashboard, label: 'Overview',      id: 'overview',       group: '' },
@@ -265,8 +265,8 @@ function TrainerOverview({ user }: { user: any }) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display font-black text-white text-3xl uppercase">Staff Panel</h2>
-        <p className="text-[var(--text-secondary)] text-sm mt-1">Welcome, {user?.name || 'Staff'} — {user?.staffRole || 'MMAFit certified instructor'}</p>
+        <h2 className="font-display font-black text-white text-3xl uppercase">Instructor Dashboard</h2>
+        <p className="text-[var(--text-secondary)] text-sm mt-1">Welcome, {user?.name || 'Instructor'} — {user?.staffRole || 'MMAFit certified instructor'}</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPI label="Classes This Week" value="6" delta="+1" positive icon={Calendar} color="#e8202f" />
@@ -950,8 +950,8 @@ function AdminOverview() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display font-black text-white text-3xl uppercase">Operations Overview</h2>
-        <p className="text-[var(--text-secondary)] text-sm mt-1">MMAFit Sweden · {new Date().toLocaleDateString('en-SE', { month: 'long', year: 'numeric' })}</p>
+        <h2 className="font-display font-black text-white text-3xl uppercase">MMAFit Management</h2>
+        <p className="text-[var(--text-secondary)] text-sm mt-1">Operations Overview · {new Date().toLocaleDateString('en-SE', { month: 'long', year: 'numeric' })}</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPI label="Total Members" value="2,418" delta="+12%" positive icon={Users} color="#e8202f" />
@@ -1467,7 +1467,7 @@ function AdminBilling() {
   ]
 
   const features = [
-    'Multi-role dashboard — Member, Staff, Trainer, Admin, Super Admin',
+    'Multi-role dashboard — Member, Instructor, Staff, MMAFit Admin, LUVLAB Super Admin',
     'Class booking & schedule management',
     'Spaces / venue management (owned, rented, partner)',
     'Staff HR — salary, payouts, tax, insurance (Swedish compliance)',
@@ -2382,6 +2382,14 @@ function Placeholder({ label }: { label: string }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // SHARED SIDEBAR SHELL
 // ══════════════════════════════════════════════════════════════════════════════
+const ROLE_LABEL: Record<string, string> = {
+  super_admin: 'LUVLAB Super Admin',
+  admin:       'MMAFit Management',
+  staff:       'Staff',
+  trainer:     'Instructor',
+  member:      'Member',
+}
+
 function DashboardShell({ nav, activePanel, setActivePanel, user, logout, title, children }: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { canInstall, installed, install } = usePWAInstall()
@@ -2403,7 +2411,7 @@ function DashboardShell({ nav, activePanel, setActivePanel, user, logout, title,
           </div>
           <div className="min-w-0">
             <div className="text-white text-sm font-semibold truncate">{user?.name || 'User'}</div>
-            <div className="text-[var(--text-muted)] text-xs capitalize">{user?.role?.toLowerCase() || 'member'}</div>
+            <div className="text-[var(--text-muted)] text-xs">{ROLE_LABEL[user?.role || 'member'] || user?.role}</div>
           </div>
         </div>
 
@@ -2548,7 +2556,7 @@ export default function DashboardPage() {
       }
     })()
     return (
-      <DashboardShell nav={ADMIN_NAV} activePanel={activePanel} setActivePanel={setActivePanel} user={user} logout={logout} title={ADMIN_NAV.find(n => n.id === activePanel)?.label || 'Admin'}>
+      <DashboardShell nav={ADMIN_NAV} activePanel={activePanel} setActivePanel={setActivePanel} user={user} logout={logout} title={ADMIN_NAV.find(n => n.id === activePanel)?.label || 'MMAFit Management'}>
         {panel}
       </DashboardShell>
     )
@@ -2587,7 +2595,7 @@ export default function DashboardPage() {
       }
     })()
     return (
-      <DashboardShell nav={TRAINER_NAV} activePanel={activePanel} setActivePanel={setActivePanel} user={user} logout={logout} title={TRAINER_NAV.find(n => n.id === activePanel)?.label || 'Trainer'}>
+      <DashboardShell nav={TRAINER_NAV} activePanel={activePanel} setActivePanel={setActivePanel} user={user} logout={logout} title={TRAINER_NAV.find(n => n.id === activePanel)?.label || 'Instructor'}>
         {panel}
       </DashboardShell>
     )

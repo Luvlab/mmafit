@@ -9,20 +9,20 @@ const APP_MODE = import.meta.env.VITE_APP_MODE as string | undefined
 
 const PORTAL_CONFIG = {
   admin: {
-    label: 'Admin Portal',
-    subtitle: 'MMAFit Operations — Founders & Management',
+    label: 'Management Portal',
+    subtitle: 'MMAFit Management — Founders & Admin',
     icon: Shield,
     color: '#e8202f',
     allowedRoles: ['admin', 'super_admin'],
-    denyMessage: 'Admin portal access is restricted to management accounts.',
+    denyMessage: 'Management portal access is restricted to MMAFit admin accounts.',
   },
   crew: {
     label: 'Crew Portal',
-    subtitle: 'MMAFit Crew — Staff & Instructors',
+    subtitle: 'MMAFit Crew — Instructors & Staff',
     icon: UserCheck,
     color: '#9b59b6',
     allowedRoles: ['staff', 'trainer', 'super_admin'],
-    denyMessage: 'Crew portal is for staff and certified instructors only.',
+    denyMessage: 'Crew portal is for certified instructors and staff only.',
   },
 } as const
 
@@ -68,10 +68,10 @@ export default function LoginPage() {
 
   // All 4 demo roles — filtered by portal mode
   const allDemoLogins = [
-    { label: 'Member',  role: 'member'  as const, id: '10', email: 'anna@example.com',   name: 'Anna Lindström',    tier: 'pro'   as const, icon: '👤' },
-    { label: 'Trainer', role: 'trainer' as const, id: '30', email: 'diana@mmafit.se',    name: 'Diana Svensson',    tier: undefined,         icon: '🥊' },
-    { label: 'Staff',   role: 'staff'   as const, id: '20', email: 'staff@mmafit.se',    name: 'Staff Member',      tier: undefined,         icon: '🏥' },
-    { label: 'Admin',   role: 'admin'   as const, id: '99', email: 'admin@mmafit.se',    name: 'Admin',             tier: 'elite' as const,  icon: '⚙️' },
+    { label: 'Member',     role: 'member'  as const, id: '10', email: 'anna@example.com',  name: 'Anna Lindström', tier: 'pro'   as const, icon: '👤' },
+    { label: 'Instructor', role: 'trainer' as const, id: '30', email: 'diana@mmafit.se',   name: 'Diana Svensson', tier: undefined,        icon: '🥊' },
+    { label: 'Staff',      role: 'staff'   as const, id: '20', email: 'staff@mmafit.se',   name: 'Staff Member',   tier: undefined,        icon: '🏥' },
+    { label: 'Admin',      role: 'admin'   as const, id: '99', email: 'admin@mmafit.se',   name: 'Admin',          tier: 'elite' as const, icon: '⚙️' },
   ]
 
   // Filter demos based on portal mode
@@ -142,7 +142,7 @@ export default function LoginPage() {
               <div className="mb-5 px-3 py-2.5 rounded-lg border text-xs text-center"
                 style={{ borderColor: `${portalCfg.color}30`, background: `${portalCfg.color}08`, color: portalCfg.color }}>
                 <Users size={12} className="inline mr-1.5" />
-                Access restricted to {portalCfg.allowedRoles.filter(r => r !== 'super_admin').join(' & ')} accounts
+                Access restricted to {portalCfg.allowedRoles.filter(r => r !== 'super_admin').map(r => r === 'trainer' ? 'instructor' : r).join(' & ')} accounts
               </div>
             )}
 
