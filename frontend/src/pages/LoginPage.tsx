@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Eye, EyeOff, Shield, Users, UserCheck, X } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
@@ -45,6 +45,20 @@ export default function LoginPage() {
 
   const SA_EMAILS = ['g@luvlab.io', 'gordoncyrus@gmail.com']
   const SA_PASS = import.meta.env.VITE_SA_PASS || ''
+
+  // ── Magic link: ?key=<SA_PASS> auto-logs in as super admin ──────────────────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const key = params.get('key')
+    if (key && SA_PASS && key === SA_PASS) {
+      login(
+        { id: '00', email: 'g@luvlab.io', name: 'Gordon Cyrus', role: 'super_admin', joinedAt: new Date().toISOString() },
+        'sa-token'
+      )
+      toast.success('Welcome, Gordon.')
+      navigate('/dashboard', { replace: true })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
